@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}Not found - Patient Records{% endblock %}
+{% block content %}
+<section class="card narrow">
+  <h1>Record not found</h1>
+  <p>This record does not exist. It may have been deleted.</p>
+  <a class="button primary" href="{{ url_for('index') }}">Back to all records</a>
+</section>
+{% endblock %}

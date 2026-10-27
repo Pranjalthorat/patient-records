@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Add patient' if mode == 'create' else 'Edit patient' }} - Patient Records{% endblock %}
+{% block content %}
+<section class="card">
+  <h1>{{ 'Add patient' if mode == 'create' else 'Edit ' ~ patient.full_name }}</h1>
+
+  {% if errors %}
+  <p class="flash error" role="alert">Please fix the {{ errors|length }} highlighted field{{ '' if errors|length == 1 else 's' }} below.</p>
+  {% endif %}
+
+  {# novalidate: the server does all validation so every rule shows the same clear message #}
+  <form method="post" novalidate>
+    <div class="grid">
+      <label class="field wide">
+        <span class="name">Full name</span>
+        <input type="text" name="full_name" value="{{ form.get('full_name', '') }}" autocomplete="off"
+               {% if 'full_name' in errors %}class="invalid" aria-invalid="true"{% endif %}>
+        <span class="err">{{ errors.get('full_name', '') }}</span>
+      </label>
+
+      <label class="field">
+        <span class="name">Date of birth</span>
+        <input type="text" name="date_of_birth" value="{{ form.get('date_of_birth', '') }}"
+               placeholder="dd/mm/yyyy" inputmode="numeric" maxlength="10" autocomplete="off"
+               {% if 'date_of_birth' in errors %}class="invalid" aria-invalid="true"{% endif %}>
+        <span class="err">{{ errors.get('date_of_birth', '') }}</span>
+      </label>
+
+      <label class="field">
+        <span class="name">Email address</span>
+        <input type="text" name="email" value="{{ form.get('email', '') }}" inputmode="email" autocomplete="off"
+               {% if 'email' in errors %}class="invalid" aria-invalid="true"{% endif %}>
+        <span class="err">{{ errors.get('email', '') }}</span>
+      </label>
+
+      {% for name, (label, low, high, unit) in fields.items() %}
+      <label class="field">
+        <span class="name">{{ label }} <span class="unit">({{ unit }})</span></span>
+        <input type="text" name="{{ name }}" value="{{ form.get(name, '') }}" inputmode="decimal" autocomplete="off"
+               {% if name in errors %}class="invalid" aria-invalid="true"{% endif %}>
+        <span class="err">{{ errors.get(name, '') }}</span>
+      </label>
+      {% endfor %}
+    </div>
+
+    <p class="note">
+      {% if mode == 'create' %}
+        After you save, the values are sent to the AI service and its prediction is stored in Remarks.
+      {% else %}
+        If you change the date of birth or any blood test value, the AI remarks are generated again.
+      {% endif %}
+    </p>
+
+    <div class="form-actions">
+      <button type="submit" class="button primary">{{ 'Save patient' if mode == 'create' else 'Save changes' }}</button>
+      <a class="button ghost" href="{{ url_for('index') }}">Cancel</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

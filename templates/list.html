@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="toolbar">
+  <form class="search" method="get" action="{{ url_for('index') }}">
+    <input type="search" name="q" value="{{ search }}" placeholder="Search by name or email" aria-label="Search by name or email">
+    <button type="submit" class="button secondary">Search</button>
+    {% if search %}<a class="button ghost" href="{{ url_for('index') }}">Clear</a>{% endif %}
+  </form>
+  <a class="button primary" href="{{ url_for('create') }}">Add patient</a>
+</div>
+
+<p class="count">
+  {% if search %}{{ patients|length }} result{{ '' if patients|length == 1 else 's' }} for "{{ search }}"
+  {% else %}{{ patients|length }} patient record{{ '' if patients|length == 1 else 's' }}{% endif %}
+</p>
+
+{% if patients %}
+<div class="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Full name</th>
+        <th>Date of birth</th>
+        <th>Email</th>
+        <th class="num">Glucose<br><span class="unit">mg/dL</span></th>
+        <th class="num">Haemoglobin<br><span class="unit">g/dL</span></th>
+        <th class="num">Cholesterol<br><span class="unit">mg/dL</span></th>
+        <th class="remarks-col">Remarks (AI)</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in patients %}
+      <tr>
+        <td>{{ p.id }}</td>
+        <td>{{ p.full_name }}</td>
+        <td>{{ p.date_of_birth|dmy }}</td>
+        <td>{{ p.email }}</td>
+        <td class="num">{{ p.glucose|num }}</td>
+        <td class="num">{{ p.haemoglobin|num }}</td>
+        <td class="num">{{ p.cholesterol|num }}</td>
+        <td class="remarks-col">
+          {% if p.remarks %}
+            {{ p.remarks }}
+          {% else %}
+            <span class="badge">Prediction pending</span>
+            <form method="post" action="{{ url_for('retry_prediction', patient_id=p.id) }}">
+              <button type="submit" class="link-button">Retry prediction</button>
+            </form>
+          {% endif %}
+        </td>
+        <td class="actions">
+          <a href="{{ url_for('edit', patient_id=p.id) }}">Edit</a>
+          <a class="danger" href="{{ url_for('delete', patient_id=p.id) }}">Delete</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="empty">
+  {% if search %}
+    <p>No patients match "{{ search }}".</p>
+  {% else %}
+    <p>No patient records yet.</p>
+    <a class="button primary" href="{{ url_for('create') }}">Add the first patient</a>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}
